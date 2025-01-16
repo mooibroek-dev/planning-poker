@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PlanningPoker local",
+            "request": "launch",
+            "type": "dart",
+            "program": "app/lib/main.dart",
+            "args": [
+                "--dart-define",
+                "ENV=local"
+            ]
+        },
+        {
+            "name": "PlanningPoker dev",
+            "request": "launch",
+            "type": "dart",
+            "program": "app/lib/main.dart",
+            "args": [
+                "--dart-define",
+                "ENV=dev"
+            ]
+        },
+        {
+            "name": "PlanningPoker prod",
+            "request": "launch",
+            "type": "dart",
+            "program": "app/lib/main.dart",
+        },
+    ]
+}
