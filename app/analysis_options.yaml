@@ -21,6 +21,5 @@ linter:
     prefer_final_locals: true
     prefer_final_fields: true
     prefer_single_quotes: true
-    sort_constructors_first: true
     require_trailing_commas: true
     unawaited_futures: true

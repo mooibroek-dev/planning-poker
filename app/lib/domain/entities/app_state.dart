@@ -1,6 +1,7 @@
-import 'package:data_class/data_class.dart';
-
-@Data()
 class AppState {
+  AppState({
+    required this.userGuid,
+  });
+
   final String userGuid;
 }

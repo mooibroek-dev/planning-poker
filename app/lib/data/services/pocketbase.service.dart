@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app/env.dart';
 import 'package:app/main.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -12,6 +14,10 @@ abstract class IPocketBaseService {
   Future<RecordModel> create(DbCollection collection, Map<String, dynamic> data);
 
   Future<RecordModel> update(DbCollection rooms, String id, Map<String, dynamic> data);
+
+  Stream<RecordModel> startWatch(DbCollection rooms, String id);
+
+  Future<void> stopWatch(DbCollection rooms, String id);
 }
 
 class PocketBaseService implements IPocketBaseService {
@@ -39,5 +45,23 @@ class PocketBaseService implements IPocketBaseService {
   @override
   Future<RecordModel> update(DbCollection collection, String id, Map<String, dynamic> data) {
     return _pocketBase.collection(collection.name).update(id, body: data);
+  }
+
+  @override
+  Stream<RecordModel> startWatch(DbCollection collection, String id) {
+    final streamController = StreamController<RecordModel>();
+
+    _pocketBase.collection(collection.name).subscribe(id, (event) {
+      if (event.record != null) {
+        streamController.add(event.record!);
+      }
+    });
+
+    return streamController.stream;
+  }
+
+  @override
+  Future<void> stopWatch(DbCollection collection, String id) {
+    return _pocketBase.collection(collection.name).unsubscribe(id);
   }
 }

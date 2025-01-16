@@ -3,20 +3,22 @@ import 'dart:math';
 
 import 'package:app/data/repositories/room.repo.dart';
 import 'package:app/domain/actions/action.dart';
+import 'package:app/domain/entities/room.dart';
 
-class CreateOrJoinRoomAction extends RefAction<String> {
-  const CreateOrJoinRoomAction(super.ref, this.roomId);
+class CreateOrJoinRoomAction extends RefAction<Room> {
+  const CreateOrJoinRoomAction(super.ref, this.roomIdOrName);
 
-  final String roomId;
+  final String roomIdOrName;
 
   String get _randomString => Iterable.generate(15, (_) => String.fromCharCode(65 + Random().nextInt(26))).join();
 
   @override
-  FutureOr<String> execute() async {
-    final id = (roomId.isEmpty ? _randomString : roomId).toLowerCase();
+  FutureOr<Room> execute() async {
+    final isId = roomIdOrName.length == 15;
+    final id = isId ? roomIdOrName : _randomString;
 
-    final record = await RoomRepo.instance.createOrJoin(id);
+    final dbRoom = await RoomRepo.instance.createOrJoin(id, roomIdOrName);
 
-    return id;
+    return Room.fromDbRoom(dbRoom);
   }
 }

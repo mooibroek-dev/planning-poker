@@ -1,4 +1,4 @@
-import 'package:app/data/models/room.dart';
+import 'package:app/data/models/db_room.dart';
 import 'package:app/data/services/pocketbase.service.dart';
 import 'package:app/data/services/prefs.service.dart';
 import 'package:app/main.dart';
@@ -14,24 +14,40 @@ class RoomRepo {
   String get userId => _prefs.getString(kUserGuid)!;
   String get userName => _prefs.getString(kUsername)!;
 
-  Future<Room> createOrJoin(String id) async {
+  Future<DbRoom> createOrJoin(String id, String? name) async {
     var record = await _pbService.getOne(DbCollection.rooms, id);
 
     record ??= await _pbService.create(
       DbCollection.rooms,
-      Room(id, userId).toJson(),
+      DbRoom(
+        id.toLowerCase(),
+        userId,
+        name: name,
+        participants: [
+          DbRoomParticipant(userId, userName),
+        ],
+      ).toJson(),
     );
 
-    var room = Room.fromRecord(record);
+    var room = DbRoom.fromRecord(record);
 
-    room = await addUserIfNotExists(room);
+    // When joining a room, make sure the user is part of it
+    room = await _addUserIfNotExists(room);
 
     return room;
   }
 
-  Future<Room> addUserIfNotExists(Room room) async {
+  Future<Stream<DbRoom>> watchRoom(String id) async {
+    return _pbService.startWatch(DbCollection.rooms, id).map(DbRoom.fromRecord);
+  }
+
+  Future<void> stopWatchRoom(String id) async {
+    await _pbService.stopWatch(DbCollection.rooms, id);
+  }
+
+  Future<DbRoom> _addUserIfNotExists(DbRoom room) async {
     // Already part of this room
-    if (room.participants.any((element) => element.guid == userId)) {
+    if (room.participants?.any((element) => element.guid == userId) ?? true) {
       return room;
     }
 

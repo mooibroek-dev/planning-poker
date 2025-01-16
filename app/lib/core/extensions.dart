@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -18,4 +20,8 @@ extension DateTimeEx on DateTime {
 extension StringEx on String? {
   bool get isTrue => this?.toLowerCase() == 'true';
   bool get isFalse => this?.toLowerCase() == 'false';
+}
+
+extension StringListEx on List<String> {
+  String random() => this[Random().nextInt(length)];
 }

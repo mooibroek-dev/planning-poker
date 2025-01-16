@@ -1,3 +1,4 @@
+import 'package:app/core/extensions.dart';
 import 'package:app/data/services/pocketbase.service.dart';
 import 'package:app/data/services/prefs.service.dart';
 import 'package:app/domain/entities/app_state.dart';
@@ -24,6 +25,12 @@ Future<void> main() async {
     userGuid = Uuid().v6();
     await prefs.set(kUserGuid, userGuid);
   }
+
+  final userName = prefs.getString(kUsername);
+  if (userName == null) {
+    await prefs.set(kUsername, _randomName());
+  }
+
   appStateNotifier = ValueNotifier(AppState(userGuid: userGuid));
 
   inject.registerSingleton<Env>(Env.fromEnvironment());
@@ -31,4 +38,11 @@ Future<void> main() async {
   inject.registerSingleton<IPocketBaseService>(PocketBaseService());
 
   runApp(ProviderScope(child: App()));
+}
+
+String _randomName() {
+  final funnyFirstNames = ['Funny', 'Crazy', 'Silly', 'Goofy', 'Wacky', 'Zany', 'Loony', 'Nutty', 'Kooky', 'Batty'];
+  final funnyLastNames = ['Banana', 'Pickle', 'Peanut', 'Pumpkin', 'Apple', 'Peach', 'Pineapple', 'Strawberry', 'Blueberry', 'Grape'];
+
+  return '${funnyFirstNames.random()} ${funnyLastNames.random()}';
 }

@@ -51,7 +51,7 @@ class WelcomePage extends HookConsumerWidget {
                     ),
                     Gap(20),
                     FTextField(
-                      hint: 'Room id',
+                      hint: 'Room name or id',
                       description: Text('Join an existing room or create a new one.'),
                       controller: roomIdController,
                     ),
@@ -66,13 +66,14 @@ class WelcomePage extends HookConsumerWidget {
                           }
 
                           isLoading.value = true;
+                          savedUsername.value = usernameController.text;
 
-                          final roomId = await CreateOrJoinRoomAction(ref, roomIdController.text).call();
+                          final room = await CreateOrJoinRoomAction(ref, roomIdController.text).call();
 
                           isLoading.value = false;
 
                           if (context.mounted) {
-                            context.go('/room/$roomId');
+                            context.go('/room/${room.id}');
                           }
                         },
                       ),
