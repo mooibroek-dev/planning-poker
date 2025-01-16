@@ -8,7 +8,8 @@
             "program": "app/lib/main.dart",
             "args": [
                 "--dart-define",
-                "ENV=local"
+                "ENV=local",
+                "--enable-experiment=macros"
             ]
         },
         {
@@ -18,7 +19,8 @@
             "program": "app/lib/main.dart",
             "args": [
                 "--dart-define",
-                "ENV=dev"
+                "ENV=dev",
+                "--enable-experiment=macros"
             ]
         },
         {
@@ -26,6 +28,9 @@
             "request": "launch",
             "type": "dart",
             "program": "app/lib/main.dart",
+            "args": [
+                "--enable-experiment=macros"
+            ]
         },
     ]
 }

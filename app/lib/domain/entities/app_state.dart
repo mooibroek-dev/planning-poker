@@ -1,20 +1,6 @@
-import 'package:app/domain/entities/entity.dart';
+import 'package:data_class/data_class.dart';
 
-class AppState extends Entity {
-  const AppState({
-    required this.isLoggedIn,
-  });
-
-  final bool isLoggedIn;
-
-  @override
-  List<Object?> get props => [isLoggedIn];
-
-  AppState copyWith({
-    bool? isLoggedIn,
-  }) {
-    return AppState(
-      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
-    );
-  }
+@Data()
+class AppState {
+  final String userGuid;
 }

@@ -1,3 +1,5 @@
+import 'package:app/data/services/prefs.service.dart';
+import 'package:app/domain/actions/create_or_join_room.action.dart';
 import 'package:app/ui/_shared/hooks/use_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -13,10 +15,12 @@ class WelcomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final savedUsername = usePrefs('username');
+    final savedUsername = usePrefs(kUsername);
+    final formKey = useMemoized(GlobalKey<FormState>.new);
+    final isLoading = useState(false);
+
     final usernameController = useTextEditingController(text: savedUsername.value);
     final roomIdController = useTextEditingController();
-    final formKey = GlobalKey<FormState>();
 
     return Scaffold(
       body: Center(
@@ -52,18 +56,26 @@ class WelcomePage extends HookConsumerWidget {
                       controller: roomIdController,
                     ),
                     Gap(40),
-                    FButton(
-                      label: Text('Submit'),
-                      onPress: () {
-                        if (formKey.currentState?.validate() == false) {
-                          return;
-                        }
+                    if (isLoading.value) CircularProgressIndicator(),
+                    if (!isLoading.value)
+                      FButton(
+                        label: Text('Submit'),
+                        onPress: () async {
+                          if (formKey.currentState?.validate() == false) {
+                            return;
+                          }
 
-                        savedUsername.value = usernameController.text;
-                        final roomId = roomIdController.text.isEmpty ? 'new-room' : roomIdController.text;
-                        context.go('/room/$roomId');
-                      },
-                    ),
+                          isLoading.value = true;
+
+                          final roomId = await CreateOrJoinRoomAction(ref, roomIdController.text).call();
+
+                          isLoading.value = false;
+
+                          if (context.mounted) {
+                            context.go('/room/$roomId');
+                          }
+                        },
+                      ),
                   ],
                 ),
               ),

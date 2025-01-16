@@ -4,7 +4,6 @@ import 'package:app/core/exceptions.dart';
 import 'package:app/core/functional.dart';
 import 'package:app/core/logger.dart';
 import 'package:app/domain/providers/global.provider.dart';
-import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -167,7 +166,7 @@ abstract class DelayedAction<T extends Object> extends CancellableAction<T> {
   DelayedAction(super.ref);
 
   void delayed([final Duration? duration]) {
-    Future.delayed(duration ?? 200.milliseconds, () {
+    Future.delayed(duration ?? Duration(milliseconds: 200), () {
       if (!isCancelled) {
         call();
       }

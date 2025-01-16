@@ -1,8 +1,8 @@
 import 'package:app/core/logger.dart';
 import 'package:app/main.dart';
 import 'package:app/ui/_shared/routing/guards/guard.dart';
-import 'package:app/ui/room.dart';
-import 'package:app/ui/welcome.dart';
+import 'package:app/ui/pages/room.page.dart';
+import 'package:app/ui/pages/welcome.page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

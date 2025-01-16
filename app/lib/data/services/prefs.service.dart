@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const kApiToken = 'api_token';
 const kUsername = 'username';
+const kUserGuid = 'userGuid';
 
 abstract class IPreferenceService {
   Future<void> preload();

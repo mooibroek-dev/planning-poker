@@ -3,13 +3,11 @@ enum Env {
   prod,
   local;
 
-  String get baseUrl => switch (this) {
+  String get pocketBaseUrl => switch (this) {
         Env.dev => '',
         Env.prod => '',
-        Env.local => '',
+        Env.local => 'http://localhost:8091',
       };
-
-  String get apiBase => '$baseUrl/api/v1';
 
   static Env fromEnvironment() {
     const env = String.fromEnvironment('ENV', defaultValue: 'prod');
