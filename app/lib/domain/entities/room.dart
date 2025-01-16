@@ -30,19 +30,22 @@ class Room extends Equatable {
 class RoomParticipant extends Equatable {
   final String id;
   final String name;
+  final DateTime? lastActive;
 
   const RoomParticipant({
     required this.id,
     required this.name,
+    required this.lastActive,
   });
 
   factory RoomParticipant.fromDbRoomParticipant(DbRoomParticipant dbRoomParticipant) {
     return RoomParticipant(
-      id: dbRoomParticipant.guid,
-      name: dbRoomParticipant.userName,
+      id: dbRoomParticipant.id,
+      name: dbRoomParticipant.name,
+      lastActive: dbRoomParticipant.updated,
     );
   }
 
   @override
-  List<Object?> get props => [id, name];
+  List<Object?> get props => [id, name, lastActive];
 }

@@ -12,14 +12,16 @@ final roomProvider = StreamProvider.family<Room, String>((ref, id) {
   final controller = StreamController<Room>.broadcast();
 
   // Create or join the room
-  RoomRepo.instance.createOrJoin(id, null).then((dbRoom) => controller.add(Room.fromDbRoom(dbRoom)));
+  RoomRepo.instance.getOrCreateRoom(id).then((dbRoom) => controller.add(Room.fromDbRoom(dbRoom)));
 
   // Watch the room
-  RoomRepo.instance.watchRoom(id).then((stream) => stream.listen((dbRoom) => controller.add(Room.fromDbRoom(dbRoom))));
+  final listener = RoomRepo.instance //
+      .watchRoom(id)
+      .listen((dbRoom) => controller.add(Room.fromDbRoom(dbRoom)));
 
-  ref.onDispose(() {
-    RoomRepo.instance.stopWatchRoom(id);
-    controller.close();
+  ref.onDispose(() async {
+    await listener.cancel();
+    await controller.close();
   });
 
   return controller.stream;

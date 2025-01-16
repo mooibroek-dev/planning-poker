@@ -28,9 +28,9 @@ dependencies:
   forui_hooks: ^0.7.0+1
   pocketbase: ^0.21.0
   uuid: ^4.5.1
-  json_annotation:
   slugify: ^2.0.0
   equatable: ^2.0.7
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:

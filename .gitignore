@@ -1,4 +1,2 @@
 
-server/pb_data/*
-!server/pb_data/.gitkeep
 .DS_Store

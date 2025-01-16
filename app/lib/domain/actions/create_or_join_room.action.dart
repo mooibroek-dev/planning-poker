@@ -17,7 +17,7 @@ class CreateOrJoinRoomAction extends RefAction<Room> {
     final isId = roomIdOrName.length == 15;
     final id = isId ? roomIdOrName : _randomString;
 
-    final dbRoom = await RoomRepo.instance.createOrJoin(id, roomIdOrName);
+    final dbRoom = await RoomRepo.instance.createAndJoinRom(id, roomIdOrName);
 
     return Room.fromDbRoom(dbRoom);
   }

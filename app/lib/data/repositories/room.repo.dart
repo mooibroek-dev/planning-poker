@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app/data/models/db_room.dart';
 import 'package:app/data/services/pocketbase.service.dart';
 import 'package:app/data/services/prefs.service.dart';
@@ -14,8 +16,16 @@ class RoomRepo {
   String get userId => _prefs.getString(kUserGuid)!;
   String get userName => _prefs.getString(kUsername)!;
 
-  Future<DbRoom> createOrJoin(String id, String? name) async {
-    var record = await _pbService.getOne(DbCollection.rooms, id);
+  String get expands => 'participants_via_room';
+  String participantKeyForRoom(String roomId) => '$roomId-$userId';
+
+  Future<DbRoom> createAndJoinRom(String id, [String? name]) async {
+    final room = await getOrCreateRoom(id, name);
+    return joinRoom(room);
+  }
+
+  Future<DbRoom> getOrCreateRoom(String id, [String? name]) async {
+    var record = await _pbService.getOne(DbCollection.rooms, id, expand: expands);
 
     record ??= await _pbService.create(
       DbCollection.rooms,
@@ -23,38 +33,67 @@ class RoomRepo {
         id.toLowerCase(),
         userId,
         name: name,
-        participants: [
-          DbRoomParticipant(userId, userName),
-        ],
       ).toJson(),
     );
 
-    var room = DbRoom.fromRecord(record);
-
-    // When joining a room, make sure the user is part of it
-    room = await _addUserIfNotExists(room);
-
-    return room;
+    return DbRoom.fromRecord(record);
   }
 
-  Future<Stream<DbRoom>> watchRoom(String id) async {
-    return _pbService.startWatch(DbCollection.rooms, id).map(DbRoom.fromRecord);
+  Future<DbRoom> joinRoom(DbRoom room) async {
+    final participantKey = participantKeyForRoom(room.id);
+    final inRoom = room.participants?.any((p) => p.id == participantKey) ?? false;
+
+    if (inRoom) return room;
+
+    await _pbService.create(DbCollection.participants, {
+      'room': room.id,
+      ...DbRoomParticipant(participantKey, userName).toJson(),
+    });
+
+    // Broadcast relation update to other clients
+    unawaited(touchRoom(room.id));
+
+    return getOrCreateRoom(room.id);
+  }
+
+  Future<void> updateParticipant(String userId, String roomId) async {
+    await _pbService.update(
+      DbCollection.participants,
+      participantKeyForRoom(roomId),
+      {
+        'updated': DateTime.now().toIso8601String(),
+      },
+    );
+  }
+
+  Stream<DbRoom> watchRoom(String id) {
+    final controller = StreamController<DbRoom>();
+
+    final listener = _pbService.startWatch(DbCollection.rooms, id, expand: expands).listen((record) async {
+      final room = DbRoom.fromRecord(record);
+      controller.add(room);
+    });
+
+    controller.onCancel = () async {
+      await stopWatchRoom(id);
+      await listener.cancel();
+      await controller.close();
+    };
+
+    return controller.stream;
   }
 
   Future<void> stopWatchRoom(String id) async {
     await _pbService.stopWatch(DbCollection.rooms, id);
   }
 
-  Future<DbRoom> _addUserIfNotExists(DbRoom room) async {
-    // Already part of this room
-    if (room.participants?.any((element) => element.guid == userId) ?? true) {
-      return room;
-    }
-
-    final updated = room.addUser(userId, userName);
-
-    await _pbService.update(DbCollection.rooms, updated.id, updated.toJson());
-
-    return updated;
+  Future<void> touchRoom(String id) async {
+    await _pbService.update(
+      DbCollection.rooms,
+      id,
+      {
+        'updatedAt': DateTime.now().toIso8601String(),
+      },
+    );
   }
 }
