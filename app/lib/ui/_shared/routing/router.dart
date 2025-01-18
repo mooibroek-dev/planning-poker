@@ -1,7 +1,11 @@
 import 'package:app/core/logger.dart';
 import 'package:app/main.dart';
 import 'package:app/ui/_shared/routing/guards/guard.dart';
+import 'package:app/ui/_shared/routing/guards/redirect_if_room_not_ready.dart';
+import 'package:app/ui/_shared/routing/guards/redirect_to_room_or_home.dart';
 import 'package:app/ui/pages/room/room.page.dart';
+import 'package:app/ui/pages/room/room_settings.page.dart';
+import 'package:app/ui/pages/room/room_waiting.page.dart';
 import 'package:app/ui/pages/welcome.page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +13,10 @@ import 'package:go_router/go_router.dart';
 GoRouter createRouter() {
   final routerKey = GlobalKey<NavigatorState>(debugLabel: 'routerKey');
 
-  final guards = <Guard>[];
+  final guards = <Guard>[
+    RedirectToRoomOrHome(),
+    RedirectIfRoomNotReady(),
+  ];
 
   final router = GoRouter(
     navigatorKey: routerKey,
@@ -17,6 +24,8 @@ GoRouter createRouter() {
     routes: [
       WelcomePage.route,
       RoomPage.route,
+      RoomSettingsPage.route,
+      RoomWaitingPage.route,
     ],
     redirect: (context, router) async {
       final state = appStateNotifier.value;

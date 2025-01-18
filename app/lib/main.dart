@@ -2,9 +2,12 @@ import 'package:app/data/repositories/user.repo.dart';
 import 'package:app/data/services/event_source.service.dart';
 import 'package:app/data/services/pocketbase.service.dart';
 import 'package:app/data/services/prefs.service.dart';
+import 'package:app/domain/actions/get_room.action.dart';
 import 'package:app/domain/entities/app_state.dart';
+import 'package:app/domain/entities/room.dart';
 import 'package:app/env.dart';
 import 'package:app/ui/app.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -33,8 +36,6 @@ Future<void> main() async {
     await prefs.set(kUsername, UserRepo.instance.randomName());
   }
 
-  appStateNotifier = ValueNotifier(AppState(userGuid: userGuid));
-
   if (kIsWeb) {
     inject.registerSingleton<IEventSourceService>(EventSourceService());
   }
@@ -43,5 +44,28 @@ Future<void> main() async {
   inject.registerSingleton<IPreferenceService>(prefs);
   inject.registerSingleton<IPocketBaseService>(PocketBaseService());
 
+  Room? activeRoom;
+  if (kIsWeb) {
+    // Pattern to check URL and extract room ID
+    final hash = Uri.base.fragment;
+    final matcher = RegExp(r'^/room/(\w+)(?:/|$)', caseSensitive: false).firstMatch(hash);
+    if (matcher != null) {
+      final roomId = matcher.group(1)!;
+      activeRoom = await GetRoomAction(roomId).call();
+    }
+  }
+
+  appStateNotifier = ValueNotifier(AppState(activeRoom: activeRoom));
+
   runApp(ProviderScope(child: App()));
+
+  if (!kIsWeb) {
+    doWhenWindowReady(() {
+      const initialSize = Size(800, 600);
+      appWindow.minSize = initialSize;
+      appWindow.size = initialSize;
+      appWindow.alignment = Alignment.center;
+      appWindow.show();
+    });
+  }
 }

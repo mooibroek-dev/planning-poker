@@ -1,7 +1,9 @@
+import 'package:app/domain/entities/room.dart';
+
 class AppState {
   AppState({
-    required this.userGuid,
+    required this.activeRoom,
   });
 
-  final String userGuid;
+  final Room? activeRoom;
 }

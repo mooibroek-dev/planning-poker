@@ -9,12 +9,14 @@ class DbRoom {
     this.id,
     this.ownerId, {
     this.name,
+    this.created,
     this.participants = const [],
   });
 
   final String id;
   final String ownerId;
   final String? name;
+  final DateTime? created;
   final List<DbRoomParticipant>? participants;
 
   Map<String, dynamic> toJson() => _$DbRoomToJson(this);

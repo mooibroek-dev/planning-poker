@@ -1,12 +1,13 @@
 import 'package:app/data/services/prefs.service.dart';
 import 'package:app/domain/actions/create_or_join_room.action.dart';
+import 'package:app/domain/entities/app_state.dart';
+import 'package:app/main.dart';
 import 'package:app/ui/_shared/hooks/use_prefs.dart';
 import 'package:app/ui/_shared/routing/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class WelcomePage extends HookConsumerWidget {
@@ -41,29 +42,17 @@ class WelcomePage extends HookConsumerWidget {
               child: Form(
                 key: formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    FTextField(
-                      hint: 'Your name',
-                      controller: usernameController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Name is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    Gap(20),
-                    FTextField(
-                      hint: 'Room name or id',
-                      description: Text('Join an existing room or create a new one.'),
-                      controller: roomIdController,
+                    _GeneralInfoSection(
+                      usernameController: usernameController,
+                      roomIdController: roomIdController,
                     ),
                     Gap(40),
                     if (isLoading.value) CircularProgressIndicator(),
                     if (!isLoading.value)
                       FButton(
-                        label: Text('Submit'),
+                        label: Text('Create'),
                         onPress: () async {
                           if (formKey.currentState?.validate() == false) {
                             return;
@@ -74,9 +63,7 @@ class WelcomePage extends HookConsumerWidget {
 
                           final room = await CreateOrJoinRoomAction(ref, roomIdController.text).call();
 
-                          if (context.mounted) {
-                            context.go('/room/${room.id}');
-                          }
+                          appStateNotifier.value = AppState(activeRoom: room);
 
                           isLoading.value = false;
                         },
@@ -87,6 +74,45 @@ class WelcomePage extends HookConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _GeneralInfoSection extends HookConsumerWidget {
+  const _GeneralInfoSection({
+    required this.usernameController,
+    required this.roomIdController,
+  });
+
+  final TextEditingController usernameController;
+  final TextEditingController roomIdController;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FLabel(
+      axis: Axis.vertical,
+      label: Text('General'),
+      description: Text('Join an existing room or create a new one.'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FTextField(
+            hint: 'Your name',
+            controller: usernameController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Name is required';
+              }
+              return null;
+            },
+          ),
+          Gap(20),
+          FTextField(
+            hint: 'Room name',
+            controller: roomIdController,
+          ),
+        ],
       ),
     );
   }

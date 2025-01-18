@@ -5,9 +5,10 @@ class UserRepo {
   static UserRepo get instance => UserRepo._();
 
   String randomName() {
-    final funnyFirstNames = ['Funny', 'Crazy', 'Silly', 'Goofy', 'Wacky', 'Zany', 'Loony', 'Nutty', 'Kooky', 'Batty'];
-    final funnyLastNames = ['Banana', 'Pickle', 'Peanut', 'Pumpkin', 'Apple', 'Peach', 'Pineapple', 'Strawberry', 'Blueberry', 'Grape'];
+    final titles = ['Mr.', 'Mrs.', 'Ms.', 'Miss', 'Dr.'];
+    final middles = ['Perky', 'Wunderpus', 'Mc', 'Pleasing', 'Pink', 'Tasseled', 'Red-lipped'];
+    final lastNames = ['Unicorn', 'Lumpsucker', 'Fizz', 'Armadillo', 'Baboon'];
 
-    return '${funnyFirstNames.random()} ${funnyLastNames.random()}';
+    return '${titles.random()} ${middles.random()} ${lastNames.random()}';
   }
 }

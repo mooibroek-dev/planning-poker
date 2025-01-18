@@ -27,6 +27,11 @@ class RoomRepo {
     return _joinRoom(room);
   }
 
+  Future<DbRoom?> tryGetRoom(String id) async {
+    final record = await _pbService.get(DbCollection.rooms, id, expand: expands);
+    return record != null ? DbRoom.fromRecord(record) : null;
+  }
+
   Future<DbRoom> _getOrCreateRoom(String id, [String? name]) async {
     var record = await _pbService.get(DbCollection.rooms, id, expand: expands);
 
@@ -87,14 +92,11 @@ class RoomRepo {
   Stream<DbRoom> watchRoom(String id) {
     final controller = StreamController<DbRoom>();
 
-    final listener = _pbService.startWatch(DbCollection.rooms, id, expand: expands).listen((record) async {
-      Log.v('RoomRepo.watchRoom: $record');
-      final room = DbRoom.fromRecord(record);
-      controller.add(room);
-    });
+    final listener = _pbService //
+        .startWatch(DbCollection.rooms, id, expand: expands)
+        .listen((record) => controller.add(DbRoom.fromRecord(record)));
 
     controller.onCancel = () async {
-      Log.v('RoomRepo.watchRoom: Canceled');
       await stopWatchRoom(id);
       await listener.cancel();
       await controller.close();
