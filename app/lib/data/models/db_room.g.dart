@@ -18,6 +18,9 @@ DbRoom _$DbRoomFromJson(Map<String, dynamic> json) => DbRoom(
                   (e) => DbRoomParticipant.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      cards:
+          (json['cards'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
     );
 
 Map<String, dynamic> _$DbRoomToJson(DbRoom instance) => <String, dynamic>{
@@ -26,6 +29,7 @@ Map<String, dynamic> _$DbRoomToJson(DbRoom instance) => <String, dynamic>{
       'name': instance.name,
       'created': instance.created?.toIso8601String(),
       'participants': instance.participants,
+      'cards': instance.cards,
     };
 
 DbRoomParticipant _$DbRoomParticipantFromJson(Map<String, dynamic> json) =>

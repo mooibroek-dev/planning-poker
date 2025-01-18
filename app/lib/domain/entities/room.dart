@@ -57,6 +57,7 @@ class Room extends Equatable {
       participants: dbRoom.participants?.map((e) => RoomParticipant.fromDbRoomParticipant(e, dbRoom.ownerId, dbRoom.id)).toList() ?? [],
       isNew: secondsOld != null && secondsOld.abs() < 1,
       canEdit: dbRoom.ownerId == myId,
+      cards: dbRoom.cards,
     );
   }
 

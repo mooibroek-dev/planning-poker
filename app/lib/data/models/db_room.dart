@@ -11,6 +11,7 @@ class DbRoom {
     this.name,
     this.created,
     this.participants = const [],
+    this.cards = const [],
   });
 
   final String id;
@@ -18,6 +19,7 @@ class DbRoom {
   final String? name;
   final DateTime? created;
   final List<DbRoomParticipant>? participants;
+  final List<String> cards;
 
   Map<String, dynamic> toJson() => _$DbRoomToJson(this);
   factory DbRoom.fromJson(Map<String, dynamic> json) => _$DbRoomFromJson(json);
@@ -29,10 +31,7 @@ class DbRoom {
         .map(DbRoomParticipant.fromRecord)
         .toList();
 
-    return DbRoom(
-      room.id,
-      room.ownerId,
-      name: room.name,
+    return room.copyWith(
       participants: participants,
     );
   }
@@ -43,11 +42,24 @@ class DbRoom {
       DbRoomParticipant(userId, userName),
     ];
 
+    return copyWith(
+      participants: updatedParticipants,
+    );
+  }
+
+  DbRoom copyWith({
+    String? name,
+    DateTime? created,
+    List<DbRoomParticipant>? participants,
+    List<String>? cards,
+  }) {
     return DbRoom(
       id,
       ownerId,
-      name: name,
-      participants: updatedParticipants,
+      name: name ?? this.name,
+      created: created ?? this.created,
+      participants: participants ?? this.participants,
+      cards: cards ?? this.cards,
     );
   }
 }
