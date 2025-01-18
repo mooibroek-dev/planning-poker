@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -40,7 +41,12 @@ class _ConsoleOutput extends LogOutput {
   @override
   void output(OutputEvent event) {
     for (var line in event.lines) {
-      log(line, level: event.level.value, time: DateTime.now(), name: 'App');
+      if (kIsWeb) {
+        // ignore: avoid_print
+        print(line);
+      } else {
+        log(line, level: event.level.value, time: DateTime.now(), name: 'App');
+      }
     }
   }
 }

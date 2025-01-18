@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:app/data/services/event_source.service.dart';
 import 'package:app/env.dart';
 import 'package:app/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 enum DbCollection {
@@ -103,15 +105,21 @@ class PocketBaseService implements IPocketBaseService {
   Stream<RecordModel> startWatch(DbCollection collection, String id, {String? expand}) {
     final streamController = StreamController<RecordModel>();
 
-    _pocketBase.collection(collection.name).subscribe(
-      id,
-      (event) {
-        if (event.record != null) {
+    if (kIsWeb) {
+      inject<IEventSourceService>().subscribe('${collection.name}/$id', expand, (event) {
+        if (event.record == null) return;
+        streamController.add(event.record!);
+      });
+    } else {
+      _pocketBase.collection(collection.name).subscribe(
+        id,
+        (event) {
+          if (event.record == null) null;
           streamController.add(event.record!);
-        }
-      },
-      expand: expand,
-    );
+        },
+        expand: expand,
+      );
+    }
 
     return streamController.stream;
   }

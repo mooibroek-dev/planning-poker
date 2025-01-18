@@ -1,9 +1,11 @@
 import 'package:app/data/repositories/user.repo.dart';
+import 'package:app/data/services/event_source.service.dart';
 import 'package:app/data/services/pocketbase.service.dart';
 import 'package:app/data/services/prefs.service.dart';
 import 'package:app/domain/entities/app_state.dart';
 import 'package:app/env.dart';
 import 'package:app/ui/app.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -32,6 +34,10 @@ Future<void> main() async {
   }
 
   appStateNotifier = ValueNotifier(AppState(userGuid: userGuid));
+
+  if (kIsWeb) {
+    inject.registerSingleton<IEventSourceService>(EventSourceService());
+  }
 
   inject.registerSingleton<Env>(Env.fromEnvironment());
   inject.registerSingleton<IPreferenceService>(prefs);

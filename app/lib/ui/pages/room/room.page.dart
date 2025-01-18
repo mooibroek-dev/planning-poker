@@ -7,6 +7,7 @@ import 'package:app/ui/_shared/routing/router.dart';
 import 'package:app/ui/pages/room/widgets/participants_list.dart';
 import 'package:app/ui/widgets/icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -90,35 +91,86 @@ class _DebugBar extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final room = ref.watch(roomProvider.select((room) => room.asData?.value));
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
-      child: FAccordion(
-        items: [
-          FAccordionItem(
-            title: Text('Debug panel'),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+    return SizedBox(
+      width: 200,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FAccordion(
+            items: [
+              FAccordionItem(
+                title: Text('Debug actions', style: TextStyle(fontSize: 14)),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 200),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      PPIconButton(
+                        onTap: RunDebugAction(ref, DebugAction.addRandomParticipant).call,
+                        icon: FAssets.icons.userPlus,
+                      ),
+                      PPIconButton(
+                        onTap: RunDebugAction(ref, DebugAction.removeRandomParticipant).call,
+                        icon: FAssets.icons.userMinus,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              FAccordionItem(
+                title: Text('Information', style: TextStyle(fontSize: 14)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FButton.icon(
-                      onPress: RunDebugAction(ref, DebugAction.addRandomParticipant).call,
-                      child: FAssets.icons.userPlus(),
+                    _InfoRow(
+                      label: 'Room ID:',
+                      value: room?.id ?? 'Loading...',
+                      isCopyable: true,
                     ),
-                    FButton.icon(
-                      onPress: RunDebugAction(ref, DebugAction.removeRandomParticipant).call,
-                      child: FAssets.icons.userMinus(),
+                    _InfoRow(
+                      label: 'Participants:',
+                      value: room?.participants.length.toString() ?? 'Loading...',
                     ),
                   ],
                 ),
-                Gap(8),
-                Text('Room id: ${room?.id}', style: TextStyle(fontSize: 12)),
-                Text('Participants: ${room?.participants.length}', style: TextStyle(fontSize: 12)),
-              ],
-            ),
+              ),
+            ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    this.isCopyable = false,
+  });
+
+  final String label;
+  final String value;
+  final bool isCopyable;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          Gap(4),
+          Text(value, style: TextStyle(fontSize: 12)),
+          if (isCopyable) ...[
+            Gap(4),
+            PPIcon(
+              onTap: () => Clipboard.setData(ClipboardData(text: value)),
+              icon: FAssets.icons.copy,
+              size: 12,
+            ),
+          ],
         ],
       ),
     );

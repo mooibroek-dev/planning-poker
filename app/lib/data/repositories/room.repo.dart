@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:app/core/logger.dart';
 import 'package:app/data/models/db_room.dart';
 import 'package:app/data/repositories/user.repo.dart';
 import 'package:app/data/services/pocketbase.service.dart';
 import 'package:app/data/services/prefs.service.dart';
 import 'package:app/main.dart';
+import 'package:pocketbase/pocketbase.dart';
 import 'package:uuid/uuid.dart';
 
 class RoomRepo {
@@ -21,11 +23,11 @@ class RoomRepo {
   String participantKeyForRoom(String roomId) => '$roomId-$userId';
 
   Future<DbRoom> createAndJoinRom(String id, [String? name]) async {
-    final room = await getOrCreateRoom(id, name);
-    return joinRoom(room);
+    final room = await _getOrCreateRoom(id, name);
+    return _joinRoom(room);
   }
 
-  Future<DbRoom> getOrCreateRoom(String id, [String? name]) async {
+  Future<DbRoom> _getOrCreateRoom(String id, [String? name]) async {
     var record = await _pbService.get(DbCollection.rooms, id, expand: expands);
 
     record ??= await _pbService.create(
@@ -49,10 +51,10 @@ class RoomRepo {
     // Broadcast relation update to other clients
     unawaited(touchRoom(roomId));
 
-    return getOrCreateRoom(roomId);
+    return _getOrCreateRoom(roomId);
   }
 
-  Future<DbRoom> joinRoom(DbRoom room) async {
+  Future<DbRoom> _joinRoom(DbRoom room) async {
     final participantKey = participantKeyForRoom(room.id);
     final inRoom = room.participants?.any((p) => p.id == participantKey) ?? false;
 
@@ -66,7 +68,7 @@ class RoomRepo {
     // Broadcast relation update to other clients
     unawaited(touchRoom(room.id));
 
-    return getOrCreateRoom(room.id);
+    return _getOrCreateRoom(room.id);
   }
 
   Future<void> updateParticipant(String userId, String roomId) async {
@@ -76,18 +78,23 @@ class RoomRepo {
       {
         'updated': DateTime.now().toIso8601String(),
       },
-    );
+    ).onError((error, stackTrace) {
+      Log.w('RoomRepo.updateParticipant', error, stackTrace);
+      return RecordModel();
+    });
   }
 
   Stream<DbRoom> watchRoom(String id) {
     final controller = StreamController<DbRoom>();
 
     final listener = _pbService.startWatch(DbCollection.rooms, id, expand: expands).listen((record) async {
+      Log.v('RoomRepo.watchRoom: $record');
       final room = DbRoom.fromRecord(record);
       controller.add(room);
     });
 
     controller.onCancel = () async {
+      Log.v('RoomRepo.watchRoom: Canceled');
       await stopWatchRoom(id);
       await listener.cancel();
       await controller.close();

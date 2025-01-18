@@ -32,3 +32,22 @@ class PPIcon extends StatelessWidget {
     );
   }
 }
+
+class PPIconButton extends StatelessWidget {
+  const PPIconButton({
+    super.key,
+    required this.icon,
+    this.onTap,
+  });
+
+  final SvgAsset icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return FButton.icon(
+      onPress: onTap,
+      child: PPIcon(icon: icon),
+    );
+  }
+}

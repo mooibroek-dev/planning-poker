@@ -16,7 +16,7 @@ Stream<Room> room(Ref ref) {
   final controller = StreamController<Room>.broadcast();
 
   // Create or join the room
-  RoomRepo.instance.getOrCreateRoom(id).then((dbRoom) => controller.add(Room.fromDbRoom(dbRoom)));
+  RoomRepo.instance.createAndJoinRom(id).then((dbRoom) => controller.add(Room.fromDbRoom(dbRoom)));
 
   // Watch the room
   final listener = RoomRepo.instance //

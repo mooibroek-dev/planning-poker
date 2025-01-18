@@ -48,10 +48,18 @@ class App extends HookConsumerWidget {
       routeInformationParser: router.routeInformationParser,
       routeInformationProvider: router.routeInformationProvider,
 
-      builder: (context, child) => FTheme(
-        data: isDarkModeEnabled ? FThemes.zinc.dark : FThemes.zinc.light,
-        child: _ServiceListener(child: child!),
-      ),
+      builder: (context, child) {
+        final baseTheme = isDarkModeEnabled ? FThemes.zinc.dark : FThemes.zinc.light;
+
+        return FTheme(
+          data: baseTheme.copyWith(
+            accordionStyle: baseTheme.accordionStyle.copyWith(
+              titlePadding: EdgeInsets.symmetric(vertical: 8),
+            ),
+          ),
+          child: _ServiceListener(child: child!),
+        );
+      },
     );
   }
 }

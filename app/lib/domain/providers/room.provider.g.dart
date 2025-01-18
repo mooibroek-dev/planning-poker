@@ -23,7 +23,7 @@ final currentRoomIdProvider = AutoDisposeProvider<String>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CurrentRoomIdRef = AutoDisposeProviderRef<String>;
-String _$roomHash() => r'df8fefcbf5e0f45e4e7c8efa467f2a1c7302bbf2';
+String _$roomHash() => r'd4ef0e6bdabc680dfba9e72624fb433b927371fc';
 
 /// See also [room].
 @ProviderFor(room)

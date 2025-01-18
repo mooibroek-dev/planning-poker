@@ -1,5 +1,7 @@
 import 'package:app/domain/providers/room.provider.dart';
+import 'package:app/ui/widgets/icons.dart';
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -33,6 +35,18 @@ class ParticipantsList extends HookConsumerWidget {
                 style: TextStyle(fontSize: 12),
                 textAlign: TextAlign.end,
               ),
+              if (participant.isMe) ...[
+                Gap(4),
+                Text(
+                  '(You)',
+                  style: TextStyle(fontSize: 10),
+                  textAlign: TextAlign.end,
+                ),
+              ],
+              if (participant.isOwner) ...[
+                Gap(4),
+                PPIcon(icon: FAssets.icons.crown, size: 10),
+              ],
             ],
           ),
         );
