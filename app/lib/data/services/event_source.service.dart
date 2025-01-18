@@ -31,9 +31,6 @@ class EventSourceService implements IEventSourceService {
         final subscription = _buildSubscription(collection, expand: expand);
         eventListener.sendSubscriptionUpdate(_clientId!, [subscription]);
       } else {
-        print('Received event: ${event.event} with data: ${event.data}');
-
-        // Example events is: {record: {collectionId: pbc_3085411453, collectionName: rooms, created: 2025-01-18 16:03:06.532Z, id: cnuaxecvbrakxgq, name: test, owner_id: 1efd5b5b-33d7-6180-8228-ddc31090ba4c, updated: 2025-01-18 16:14:10.450Z}, action: update}
         final record = RecordModel.fromJson(event.data['record'] as Map<String, dynamic>);
         callback(RecordSubscriptionEvent(record: record, action: event.data['action'] as String));
       }
@@ -98,7 +95,7 @@ class HttpEventListener {
             final jsonData = jsonDecode(data) as Map<String, dynamic>;
             controller.add(SSEEvent(id: id, event: event, data: jsonData));
           } catch (e, stacktrace) {
-            print('${e.toString()}\n$stacktrace\n\n Unexpected Error when converting stream data to json');
+            debugPrint('${e.toString()}\n$stacktrace\n\n Unexpected Error when converting stream data to json');
           }
         }
       }
