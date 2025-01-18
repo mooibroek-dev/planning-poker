@@ -10,7 +10,7 @@ enum DbCollection {
 }
 
 abstract class IPocketBaseService {
-  Future<RecordModel?> getOne(
+  Future<RecordModel?> get(
     DbCollection collection,
     String id, {
     String? expand,
@@ -35,6 +35,8 @@ abstract class IPocketBaseService {
     String? expand,
   });
 
+  Future<void> delete(DbCollection collection, String id);
+
   Stream<RecordModel> startWatch(
     DbCollection rooms,
     String id, {
@@ -53,7 +55,7 @@ class PocketBaseService implements IPocketBaseService {
   late PocketBase _pocketBase;
 
   @override
-  Future<RecordModel?> getOne(DbCollection collection, String id, {String? expand}) async {
+  Future<RecordModel?> get(DbCollection collection, String id, {String? expand}) async {
     final record = await _pocketBase
         .collection(collection.name)
         .getOne(
@@ -90,6 +92,11 @@ class PocketBaseService implements IPocketBaseService {
     return _pocketBase //
         .collection(collection.name)
         .update(id, body: data, expand: expand);
+  }
+
+  @override
+  Future<void> delete(DbCollection collection, String id) {
+    return _pocketBase.collection(collection.name).delete(id);
   }
 
   @override

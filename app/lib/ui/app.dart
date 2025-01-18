@@ -1,6 +1,9 @@
 import 'package:app/core/exceptions.dart';
+import 'package:app/core/extensions.dart';
 import 'package:app/core/l10n.dart';
+import 'package:app/data/services/prefs.service.dart';
 import 'package:app/domain/providers/global.provider.dart';
+import 'package:app/ui/_shared/hooks/use_prefs.dart';
 import 'package:app/ui/_shared/routing/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -8,12 +11,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class App extends HookWidget {
+class App extends HookConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final router = useRef(createRouter()).value;
+    final isDarkModeEnabled = usePrefs(kDarkmodeEnabled, watchStream: true).value.isTrue;
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -26,9 +30,7 @@ class App extends HookWidget {
 
       // * Theme
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(
-            // Add primary and secondary colors
-            ),
+        brightness: isDarkModeEnabled ? Brightness.dark : Brightness.light,
       ),
 
       // * i18n configuration
@@ -47,7 +49,7 @@ class App extends HookWidget {
       routeInformationProvider: router.routeInformationProvider,
 
       builder: (context, child) => FTheme(
-        data: FThemes.zinc.light,
+        data: isDarkModeEnabled ? FThemes.zinc.dark : FThemes.zinc.light,
         child: _ServiceListener(child: child!),
       ),
     );

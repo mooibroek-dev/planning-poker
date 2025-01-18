@@ -1,6 +1,7 @@
 import 'package:app/data/services/prefs.service.dart';
 import 'package:app/domain/actions/create_or_join_room.action.dart';
 import 'package:app/ui/_shared/hooks/use_prefs.dart';
+import 'package:app/ui/_shared/routing/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -11,7 +12,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class WelcomePage extends HookConsumerWidget {
   const WelcomePage({super.key});
 
-  static final route = GoRoute(path: '/', builder: (_, __) => WelcomePage());
+  static final route = CrossFadeRoute(
+    path: '/',
+    builder: (_, __) => WelcomePage(),
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -70,11 +74,11 @@ class WelcomePage extends HookConsumerWidget {
 
                           final room = await CreateOrJoinRoomAction(ref, roomIdController.text).call();
 
-                          isLoading.value = false;
-
                           if (context.mounted) {
                             context.go('/room/${room.id}');
                           }
+
+                          isLoading.value = false;
                         },
                       ),
                   ],

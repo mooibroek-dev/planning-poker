@@ -2,20 +2,27 @@ onBootstrap((e) => {
     e.next();
 });
 
-cronAdd("removeInactiveParticipants", "*/1 * * * *", async () => {
+cronAdd("removeStaleData", "*/1 * * * *", async () => {
+    const removeInactiveParticipantsQuery = `
+        DELETE FROM participants
+        WHERE updated <= datetime('now', '-5 minutes')
+    `;
 
-    const now = new Date();
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
+    const removeEmptyRoomsQuery = `
+        DELETE FROM rooms
+        WHERE id NOT IN (SELECT DISTINCT room FROM participants)
+        AND updated <= datetime('now', '-1 day')
+    `;
 
-    console.log("cron removeInactiveParticipants older then 5 minutes ago: ", fiveMinutesAgo);
+    const db = $app.db();
 
-    const participants = await $app.findRecordsByFilter(
-        'participants',
-        "updated <= '${fiveMinutesAgo}'"
-    );
+    const resultParticipants = await db
+        .newQuery(removeInactiveParticipantsQuery)
+        .execute();
 
-    for (const participant of participants) {
-        console.log(`Removing inactive participant: ${participant.id}, ${participant.updated}`);
-        await $app.delete(participant);
-    }
+    const resultRooms = await db
+        .newQuery(removeEmptyRoomsQuery)
+        .execute();
+
+    console.log(`Removed ${resultParticipants.rowsAffected()} participants and ${resultRooms.rowsAffected()} empty rooms.`);
 });

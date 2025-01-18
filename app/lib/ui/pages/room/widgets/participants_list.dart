@@ -11,7 +11,7 @@ class ParticipantsList extends HookConsumerWidget {
     final participants = ref.watch(participantsProvider);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: participants.map((participant) {
         return Container(
@@ -20,15 +20,19 @@ class ParticipantsList extends HookConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 10,
-                height: 10,
+                width: 6,
+                height: 6,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: _getLastActiveColor(participant.lastActive),
                 ),
               ),
-              Gap(8),
-              Expanded(child: Text(participant.name, style: TextStyle(fontSize: 18))),
+              Gap(6),
+              Text(
+                participant.name,
+                style: TextStyle(fontSize: 12),
+                textAlign: TextAlign.end,
+              ),
             ],
           ),
         );
@@ -44,9 +48,9 @@ class ParticipantsList extends HookConsumerWidget {
     final now = DateTime.now();
     final difference = now.difference(lastActive);
 
-    if (difference.inMinutes < 1) {
+    if (difference.inSeconds < 10) {
       return Colors.green;
-    } else if (difference.inMinutes < 5) {
+    } else if (difference.inSeconds < 60) {
       return Colors.orange;
     } else {
       return Colors.red;

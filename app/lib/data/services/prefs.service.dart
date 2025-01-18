@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 const kApiToken = 'api_token';
 const kUsername = 'username';
 const kUserGuid = 'userGuid';
+const kDarkmodeEnabled = 'darkmode_enabled';
 
 abstract class IPreferenceService {
   Future<void> preload();
@@ -41,11 +42,7 @@ class LocalPrefsService implements IPreferenceService {
 
   @override
   String? getString(String key) {
-    final String? value = localPrefs.getString(key);
-
-    _controller.add(PrefUpdate(key, value));
-
-    return value;
+    return localPrefs.getString(key);
   }
 
   @override
@@ -55,6 +52,8 @@ class LocalPrefsService implements IPreferenceService {
 
   @override
   Future<void> set(String key, dynamic value) async {
+    _controller.add(PrefUpdate(key, value.toString()));
+
     if (value == null) {
       await localPrefs.remove(key);
     } else {

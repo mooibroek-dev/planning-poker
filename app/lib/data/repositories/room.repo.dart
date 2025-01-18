@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:app/data/models/db_room.dart';
+import 'package:app/data/repositories/user.repo.dart';
 import 'package:app/data/services/pocketbase.service.dart';
 import 'package:app/data/services/prefs.service.dart';
 import 'package:app/main.dart';
+import 'package:uuid/uuid.dart';
 
 class RoomRepo {
   RoomRepo._();
-
   static RoomRepo get instance => RoomRepo._();
 
   IPocketBaseService get _pbService => inject();
@@ -25,7 +26,7 @@ class RoomRepo {
   }
 
   Future<DbRoom> getOrCreateRoom(String id, [String? name]) async {
-    var record = await _pbService.getOne(DbCollection.rooms, id, expand: expands);
+    var record = await _pbService.get(DbCollection.rooms, id, expand: expands);
 
     record ??= await _pbService.create(
       DbCollection.rooms,
@@ -37,6 +38,18 @@ class RoomRepo {
     );
 
     return DbRoom.fromRecord(record);
+  }
+
+  Future<DbRoom> addRandomUser(String roomId, int participantCount) async {
+    await _pbService.create(DbCollection.participants, {
+      'room': roomId,
+      ...DbRoomParticipant('$roomId-${Uuid().v6()}', UserRepo.instance.randomName()).toJson(),
+    });
+
+    // Broadcast relation update to other clients
+    unawaited(touchRoom(roomId));
+
+    return getOrCreateRoom(roomId);
   }
 
   Future<DbRoom> joinRoom(DbRoom room) async {
@@ -95,5 +108,12 @@ class RoomRepo {
         'updatedAt': DateTime.now().toIso8601String(),
       },
     );
+  }
+
+  Future<void> removeRandomUser(String participantId) async {
+    await _pbService.delete(DbCollection.participants, participantId);
+
+    // Broadcast relation update to other clients
+    unawaited(touchRoom(participantId.split('-').first));
   }
 }
