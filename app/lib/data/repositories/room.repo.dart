@@ -125,4 +125,17 @@ class RoomRepo {
     // Broadcast relation update to other clients
     unawaited(touchRoom(participantId.split('-').first));
   }
+
+  Future<DbRoom> updateSettings(String id, List<String> cards) async {
+    final record = await _pbService.update(
+      DbCollection.rooms,
+      id,
+      {
+        'cards': cards,
+      },
+      expand: expands,
+    );
+
+    return DbRoom.fromRecord(record);
+  }
 }

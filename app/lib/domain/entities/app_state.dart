@@ -6,4 +6,8 @@ class AppState {
   });
 
   final Room? activeRoom;
+
+  AppState copyWith({required Room? activeRoom}) => AppState(
+        activeRoom: activeRoom ?? this.activeRoom,
+      );
 }

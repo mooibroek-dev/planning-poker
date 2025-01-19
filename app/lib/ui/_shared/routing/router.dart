@@ -33,7 +33,6 @@ GoRouter createRouter() {
       for (var guard in guards) {
         final redirect = await guard.redirect(context, router, state);
 
-        Log.v('Guard: ${guard.runtimeType} => ${redirect.result}');
         if (redirect.result == GuardResult.redirect) {
           Log.v('Redirecting to: ${redirect.redirect}');
           return redirect.redirect;

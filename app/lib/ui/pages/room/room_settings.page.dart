@@ -1,6 +1,8 @@
+import 'package:app/domain/actions/update_room_settings.action.dart';
 import 'package:app/domain/entities/room.dart';
 import 'package:app/ui/_shared/routing/router.dart';
 import 'package:app/ui/pages/room/room_base.page.dart';
+import 'package:app/ui/widgets/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -26,7 +28,17 @@ class RoomSettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    final controller = useState(FRadioSelectGroupController(value: DeckType.standard)).value;
+    final selectedDeck = useState<DeckType?>(DeckType.standard);
+    final customCardsController = useTextEditingController();
+    final controller = useMemoized(() {
+      final controller = FRadioSelectGroupController(value: DeckType.standard);
+
+      controller.addListener(() {
+        selectedDeck.value = controller.values.firstOrNull;
+      });
+
+      return controller;
+    });
     final isLoading = useState(false);
 
     return BaseRoomPage(
@@ -50,7 +62,25 @@ class RoomSettingsPage extends HookConsumerWidget {
                     children: [
                       _DeckTypeSelection(
                         controller: controller,
+                        onDeckCopy: (deckType) {
+                          customCardsController.text = deckType.cards.join(',');
+                        },
                       ),
+                      if (selectedDeck.value == DeckType.custom) ...[
+                        Gap(20),
+                        FTextField(
+                          label: Text('Add card values'),
+                          description: Text('Enter comma separated values'),
+                          controller: customCardsController,
+                          validator: (value) {
+                            final cardValues = value?.split(',') ?? [];
+                            if (cardValues.length < 2) {
+                              return 'Card values are required, add atleast 2 cards';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
                       Gap(40),
                       if (isLoading.value) CircularProgressIndicator(),
                       if (!isLoading.value)
@@ -63,11 +93,16 @@ class RoomSettingsPage extends HookConsumerWidget {
 
                             isLoading.value = true;
 
-                            if (!context.mounted) return;
+                            final cards = selectedDeck.value == DeckType.custom //
+                                ? customCardsController.text.split(',')
+                                : selectedDeck.value!.cards;
 
-                            context.go('/room/$roomId');
+                            await UpdateRoomSettingsAction(ref, cards).call();
 
                             isLoading.value = false;
+
+                            if (!context.mounted) return;
+                            context.go('/room/$roomId');
                           },
                         ),
                     ],
@@ -85,12 +120,18 @@ class RoomSettingsPage extends HookConsumerWidget {
 class _DeckTypeSelection extends HookConsumerWidget {
   const _DeckTypeSelection({
     required this.controller,
+    required this.onDeckCopy,
   });
 
   final FSelectGroupController<DeckType> controller;
+  final ValueSetter<DeckType> onDeckCopy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useListenable(controller);
+
+    final isCustom = controller.values.firstOrNull == DeckType.custom;
+
     return FSelectGroup(
       controller: controller,
       label: Text('Deck type'),
@@ -103,17 +144,53 @@ class _DeckTypeSelection extends HookConsumerWidget {
       items: [
         FSelectGroupItem.radio(
           value: DeckType.standard,
-          label: Text('Standard'),
+          label: Row(
+            children: [
+              Expanded(child: Text('Standard')),
+              if (isCustom) ...[
+                Gap(4),
+                PPIcon(
+                  icon: FAssets.icons.copy,
+                  size: 14,
+                  onTap: () => onDeckCopy(DeckType.standard),
+                ),
+              ],
+            ],
+          ),
           description: Text(DeckType.standard.cards.join(', ')),
         ),
         FSelectGroupItem.radio(
           value: DeckType.fibonacci,
-          label: Text('Fibonacci'),
+          label: Row(
+            children: [
+              Expanded(child: Text('Fibonacci')),
+              if (isCustom) ...[
+                Gap(4),
+                PPIcon(
+                  icon: FAssets.icons.copy,
+                  size: 14,
+                  onTap: () => onDeckCopy(DeckType.fibonacci),
+                ),
+              ],
+            ],
+          ),
           description: Text(DeckType.fibonacci.cards.join(', ')),
         ),
         FSelectGroupItem.radio(
           value: DeckType.tshirt,
-          label: Text('T-Shirt'),
+          label: Row(
+            children: [
+              Expanded(child: Text('T-shirt')),
+              if (isCustom) ...[
+                Gap(4),
+                PPIcon(
+                  icon: FAssets.icons.copy,
+                  size: 14,
+                  onTap: () => onDeckCopy(DeckType.tshirt),
+                ),
+              ],
+            ],
+          ),
           description: Text(DeckType.tshirt.cards.join(', ')),
         ),
         FSelectGroupItem.radio(

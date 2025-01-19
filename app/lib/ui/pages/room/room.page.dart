@@ -8,6 +8,7 @@ import 'package:app/main.dart';
 import 'package:app/ui/_shared/hooks/use_prefs.dart';
 import 'package:app/ui/_shared/routing/router.dart';
 import 'package:app/ui/pages/room/room_base.page.dart';
+import 'package:app/ui/pages/room/widgets/card_selection.dart';
 import 'package:app/ui/pages/room/widgets/participants_list.dart';
 import 'package:app/ui/pages/room/widgets/room_background.dart';
 import 'package:app/ui/widgets/icons.dart';
@@ -43,7 +44,7 @@ class RoomPage extends HookConsumerWidget {
           children: [
             Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 800),
+                constraints: BoxConstraints(maxWidth: 1000),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
                   child: Stack(
@@ -51,6 +52,20 @@ class RoomPage extends HookConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.all(40),
                         child: RoomBackground(),
+                      ),
+                      Positioned(
+                        left: 40,
+                        right: 40,
+                        bottom: 0,
+                        top: 60,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: FractionallySizedBox(
+                            widthFactor: .6,
+                            heightFactor: .3,
+                            child: CardSelection(),
+                          ),
+                        ),
                       ),
                       _HeaderTitle(),
                     ],
