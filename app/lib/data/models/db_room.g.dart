@@ -39,6 +39,7 @@ DbRoomParticipant _$DbRoomParticipantFromJson(Map<String, dynamic> json) =>
       updated: json['updated'] == null
           ? null
           : DateTime.parse(json['updated'] as String),
+      selectedCard: json['selected_card'] as String?,
     );
 
 Map<String, dynamic> _$DbRoomParticipantToJson(DbRoomParticipant instance) =>
@@ -46,4 +47,5 @@ Map<String, dynamic> _$DbRoomParticipantToJson(DbRoomParticipant instance) =>
       'id': instance.id,
       'name': instance.name,
       'updated': instance.updated?.toIso8601String(),
+      'selected_card': instance.selectedCard,
     };

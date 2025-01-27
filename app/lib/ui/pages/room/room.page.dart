@@ -9,6 +9,7 @@ import 'package:app/ui/_shared/hooks/use_prefs.dart';
 import 'package:app/ui/_shared/routing/router.dart';
 import 'package:app/ui/pages/room/room_base.page.dart';
 import 'package:app/ui/pages/room/widgets/card_selection.dart';
+import 'package:app/ui/pages/room/widgets/other_users.dart';
 import 'package:app/ui/pages/room/widgets/participants_list.dart';
 import 'package:app/ui/pages/room/widgets/room_background.dart';
 import 'package:app/ui/widgets/icons.dart';
@@ -42,6 +43,11 @@ class RoomPage extends HookConsumerWidget {
         content: Stack(
           fit: StackFit.expand,
           children: [
+            Positioned(
+              top: 16,
+              left: 16,
+              child: _HeaderTitle(),
+            ),
             Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: 1000),
@@ -53,21 +59,8 @@ class RoomPage extends HookConsumerWidget {
                         padding: const EdgeInsets.all(40),
                         child: RoomBackground(),
                       ),
-                      Positioned(
-                        left: 40,
-                        right: 40,
-                        bottom: 0,
-                        top: 60,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: FractionallySizedBox(
-                            widthFactor: .6,
-                            heightFactor: .3,
-                            child: CardSelection(),
-                          ),
-                        ),
-                      ),
-                      _HeaderTitle(),
+                      _OtherUsers(),
+                      _CardSelection(),
                     ],
                   ),
                 ),
@@ -121,6 +114,53 @@ class _Actions extends HookConsumerWidget {
   }
 }
 
+class _OtherUsers extends HookConsumerWidget {
+  const _OtherUsers();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Positioned(
+      left: 40,
+      right: 40,
+      bottom: 40,
+      top: 40,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: FractionallySizedBox(
+          widthFactor: 1,
+          heightFactor: .7,
+          child: OtherUsers(),
+        ),
+      ),
+    );
+  }
+}
+
+class _CardSelection extends HookConsumerWidget {
+  const _CardSelection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Positioned(
+      left: 40,
+      right: 40,
+      bottom: 0,
+      top: 60,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: FractionallySizedBox(
+          widthFactor: .6,
+          heightFactor: .3,
+          child: Container(
+            color: Colors.white.withValues(alpha: .1),
+            child: CardSelection(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _HeaderTitle extends HookConsumerWidget {
   const _HeaderTitle();
 
@@ -129,9 +169,9 @@ class _HeaderTitle extends HookConsumerWidget {
     final room = ref.watch(roomProvider);
 
     return Align(
-      alignment: Alignment.topCenter,
+      alignment: Alignment.topLeft,
       child: room.when(
-        data: (room) => Text(room.name),
+        data: (room) => Text('Room: ${room.name}', style: TextStyle(fontSize: 24)),
         loading: () => Text('Loading...'),
         error: (error, _) => Text('Error while fetching, try again¬'),
       ),

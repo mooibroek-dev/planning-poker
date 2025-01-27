@@ -65,6 +65,8 @@ class Room extends Equatable {
   List<Object?> get props => [id, name, participants];
 
   bool get isReady => cards.isNotEmpty;
+
+  List<RoomParticipant> participantsWithoutMe() => participants.where((e) => !e.isMe).toList();
 }
 
 @immutable

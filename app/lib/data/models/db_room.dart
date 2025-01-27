@@ -66,11 +66,17 @@ class DbRoom {
 
 @JsonSerializable()
 class DbRoomParticipant {
-  const DbRoomParticipant(this.id, this.name, {this.updated});
+  const DbRoomParticipant(
+    this.id,
+    this.name, {
+    this.updated,
+    this.selectedCard,
+  });
 
   final String id;
   final String name;
   final DateTime? updated;
+  final String? selectedCard;
 
   Map<String, dynamic> toJson() => _$DbRoomParticipantToJson(this);
   factory DbRoomParticipant.fromJson(Map<String, dynamic> json) => _$DbRoomParticipantFromJson(json);
