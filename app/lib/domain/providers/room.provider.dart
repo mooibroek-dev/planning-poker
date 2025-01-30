@@ -4,6 +4,7 @@ import 'package:app/data/models/db_room.dart';
 import 'package:app/data/repositories/room.repo.dart';
 import 'package:app/domain/entities/room.dart';
 import 'package:app/main.dart';
+import 'package:collection/collection.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -42,4 +43,10 @@ Stream<Room> room(Ref ref) {
 List<RoomParticipant> participants(Ref ref) {
   final room = ref.watch(roomProvider);
   return room.value?.participants ?? [];
+}
+
+@Riverpod(dependencies: [participants])
+RoomParticipant? myParticipant(Ref ref) {
+  final participants = ref.watch(participantsProvider);
+  return participants.firstWhereOrNull((p) => p.isMe);
 }

@@ -19,7 +19,7 @@ class RoomRepo {
   String get userId => _prefs.getString(kUserGuid)!;
   String get userName => _prefs.getString(kUsername)!;
 
-  String get expands => 'participants_via_room';
+  String get expands => 'participants_via_room,estimations_via_room';
   String participantKeyForRoom(String roomId) => '$roomId-$userId';
 
   Future<DbRoom> createAndJoinRom(String id, [String? name]) async {
@@ -137,5 +137,16 @@ class RoomRepo {
     );
 
     return DbRoom.fromRecord(record);
+  }
+
+  Future<void> selectCard(String participantId, String? card) async {
+    await _pbService.update(
+      DbCollection.participants,
+      participantId,
+      {
+        'selected_card': card,
+      },
+      expand: expands,
+    );
   }
 }

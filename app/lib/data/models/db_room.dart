@@ -11,6 +11,7 @@ class DbRoom {
     this.name,
     this.created,
     this.participants = const [],
+    this.estimations = const [],
     this.cards = const [],
   });
 
@@ -19,6 +20,7 @@ class DbRoom {
   final String? name;
   final DateTime? created;
   final List<DbRoomParticipant>? participants;
+  final List<DbEstimation>? estimations;
   final List<String> cards;
 
   Map<String, dynamic> toJson() => _$DbRoomToJson(this);
@@ -26,13 +28,20 @@ class DbRoom {
 
   factory DbRoom.fromRecord(RecordModel record) {
     final room = DbRoom.fromJson(record.toJson());
+
     final participants = record //
         .get<List<RecordModel>>('expand.participants_via_room', [])
         .map(DbRoomParticipant.fromRecord)
         .toList();
 
+    final estimations = record //
+        .get<List<RecordModel>>('expand.estimations_via_room', [])
+        .map(DbEstimation.fromRecord)
+        .toList();
+
     return room.copyWith(
       participants: participants,
+      estimations: estimations,
     );
   }
 
@@ -51,6 +60,7 @@ class DbRoom {
     String? name,
     DateTime? created,
     List<DbRoomParticipant>? participants,
+    List<DbEstimation>? estimations,
     List<String>? cards,
   }) {
     return DbRoom(
@@ -59,6 +69,7 @@ class DbRoom {
       name: name ?? this.name,
       created: created ?? this.created,
       participants: participants ?? this.participants,
+      estimations: estimations ?? this.estimations,
       cards: cards ?? this.cards,
     );
   }
@@ -81,4 +92,27 @@ class DbRoomParticipant {
   Map<String, dynamic> toJson() => _$DbRoomParticipantToJson(this);
   factory DbRoomParticipant.fromJson(Map<String, dynamic> json) => _$DbRoomParticipantFromJson(json);
   factory DbRoomParticipant.fromRecord(RecordModel record) => _$DbRoomParticipantFromJson(record.toJson());
+}
+
+@JsonSerializable()
+class DbEstimation {
+  const DbEstimation(
+    this.id,
+    this.roomId, {
+    this.showingCards,
+    this.breakdown,
+    this.estimatedValue,
+    this.isActive,
+  });
+
+  final String id;
+  final String roomId;
+  final bool? showingCards;
+  final Map<String, dynamic>? breakdown;
+  final int? estimatedValue;
+  final bool? isActive;
+
+  Map<String, dynamic> toJson() => _$DbEstimationToJson(this);
+  factory DbEstimation.fromJson(Map<String, dynamic> json) => _$DbEstimationFromJson(json);
+  factory DbEstimation.fromRecord(RecordModel record) => _$DbEstimationFromJson(record.toJson());
 }

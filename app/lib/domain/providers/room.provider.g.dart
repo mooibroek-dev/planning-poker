@@ -62,5 +62,25 @@ final participantsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ParticipantsRef = AutoDisposeProviderRef<List<RoomParticipant>>;
+String _$myParticipantHash() => r'3cafc92bfe2799bdf22115fe67cd1eaff415f787';
+
+/// See also [myParticipant].
+@ProviderFor(myParticipant)
+final myParticipantProvider = AutoDisposeProvider<RoomParticipant?>.internal(
+  myParticipant,
+  name: r'myParticipantProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$myParticipantHash,
+  dependencies: <ProviderOrFamily>[participantsProvider],
+  allTransitiveDependencies: <ProviderOrFamily>{
+    participantsProvider,
+    ...?participantsProvider.allTransitiveDependencies
+  },
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef MyParticipantRef = AutoDisposeProviderRef<RoomParticipant?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

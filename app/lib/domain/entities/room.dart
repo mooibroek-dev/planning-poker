@@ -76,6 +76,7 @@ class RoomParticipant extends Equatable {
   final DateTime? lastActive;
   final bool isMe;
   final bool isOwner;
+  final String? selectedCard;
 
   const RoomParticipant({
     required this.id,
@@ -83,6 +84,7 @@ class RoomParticipant extends Equatable {
     required this.lastActive,
     required this.isMe,
     required this.isOwner,
+    required this.selectedCard,
   });
 
   factory RoomParticipant.fromDbRoomParticipant(DbRoomParticipant dbRoomParticipant, String ownerId, String roomId) {
@@ -95,6 +97,7 @@ class RoomParticipant extends Equatable {
       lastActive: dbRoomParticipant.updated,
       isMe: dbRoomParticipant.id == myKey,
       isOwner: participantUserId == ownerId,
+      selectedCard: dbRoomParticipant.selectedCard,
     );
   }
 

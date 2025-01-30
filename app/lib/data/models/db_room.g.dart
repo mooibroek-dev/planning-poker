@@ -18,6 +18,10 @@ DbRoom _$DbRoomFromJson(Map<String, dynamic> json) => DbRoom(
                   (e) => DbRoomParticipant.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      estimations: (json['estimations'] as List<dynamic>?)
+              ?.map((e) => DbEstimation.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       cards:
           (json['cards'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const [],
@@ -29,6 +33,7 @@ Map<String, dynamic> _$DbRoomToJson(DbRoom instance) => <String, dynamic>{
       'name': instance.name,
       'created': instance.created?.toIso8601String(),
       'participants': instance.participants,
+      'estimations': instance.estimations,
       'cards': instance.cards,
     };
 
@@ -48,4 +53,23 @@ Map<String, dynamic> _$DbRoomParticipantToJson(DbRoomParticipant instance) =>
       'name': instance.name,
       'updated': instance.updated?.toIso8601String(),
       'selected_card': instance.selectedCard,
+    };
+
+DbEstimation _$DbEstimationFromJson(Map<String, dynamic> json) => DbEstimation(
+      json['id'] as String,
+      json['room_id'] as String,
+      showingCards: json['showing_cards'] as bool?,
+      breakdown: json['breakdown'] as Map<String, dynamic>?,
+      estimatedValue: (json['estimated_value'] as num?)?.toInt(),
+      isActive: json['is_active'] as bool?,
+    );
+
+Map<String, dynamic> _$DbEstimationToJson(DbEstimation instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'room_id': instance.roomId,
+      'showing_cards': instance.showingCards,
+      'breakdown': instance.breakdown,
+      'estimated_value': instance.estimatedValue,
+      'is_active': instance.isActive,
     };

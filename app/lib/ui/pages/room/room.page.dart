@@ -13,7 +13,6 @@ import 'package:app/ui/pages/room/widgets/other_users.dart';
 import 'package:app/ui/pages/room/widgets/participants_list.dart';
 import 'package:app/ui/pages/room/widgets/room_background.dart';
 import 'package:app/ui/widgets/icons.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:forui/forui.dart';
@@ -81,7 +80,6 @@ class RoomPage extends HookConsumerWidget {
               bottom: 16,
               child: _DebugBar(),
             ),
-            MoveWindow(),
           ],
         ),
       ),
@@ -123,7 +121,7 @@ class _OtherUsers extends HookConsumerWidget {
       left: 40,
       right: 40,
       bottom: 40,
-      top: 40,
+      top: 0,
       child: Align(
         alignment: Alignment.topCenter,
         child: FractionallySizedBox(
@@ -144,17 +142,14 @@ class _CardSelection extends HookConsumerWidget {
     return Positioned(
       left: 40,
       right: 40,
-      bottom: 0,
+      bottom: -40,
       top: 60,
       child: Align(
         alignment: Alignment.bottomCenter,
         child: FractionallySizedBox(
           widthFactor: .6,
           heightFactor: .3,
-          child: Container(
-            color: Colors.white.withValues(alpha: .1),
-            child: CardSelection(),
-          ),
+          child: CardSelection(),
         ),
       ),
     );

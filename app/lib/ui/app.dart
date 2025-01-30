@@ -5,6 +5,7 @@ import 'package:app/data/services/prefs.service.dart';
 import 'package:app/domain/providers/global.provider.dart';
 import 'package:app/ui/_shared/hooks/use_prefs.dart';
 import 'package:app/ui/_shared/routing/router.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -88,6 +89,11 @@ class _ServiceListener extends HookConsumerWidget {
       }
     });
 
-    return child;
+    return Stack(
+      children: [
+        child,
+        MoveWindow(),
+      ],
+    );
   }
 }
